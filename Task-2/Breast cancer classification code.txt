@@ -1,0 +1,70 @@
+# Importing libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report,confusion_matrix
+
+# importing the cancer dataset
+df = pd.read_csv("Copy of breast-cancer-wisconsin-csv")
+df.columns = ['id','Clump Thickness','Uniformity of Cell Size','Uniformity of Cell Shape','Marginal Adhesion','Single Epithelial Cell Size','Bare Nuclei','Bland Chromatin','Normal Nucleoli','Mitoses','Class']
+print(df.shape)
+
+# print the first 5 rows of the dataset
+df.head()
+
+# to get a quick summary of the dataset
+df.info()
+
+# checking the distribution of features
+df.hist(bins=10, figsize=(16,12))
+plt.show()
+
+# converting class into categorical so we can classify it.
+
+from sklearn.preprocessing import LabelEncoder
+df['Class'] = LabelEncoder().fit_transform(df['Class'])
+df.head()
+
+# checking if our response feature is balanced.
+sns.countplot(df.Class)
+
+# dropping id as it doesn't help in classifying
+df.drop(['id'],axis = 1,inplace = True)
+df.head()
+
+#Splitting the predictor & response variables
+X = df.drop(columns = ['Class'],axis =1)
+y = df.Class
+
+# Spliting of the dataset into training set and test set
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.3,random_state = 42)
+
+#Import svm model
+from sklearn.svm import SVC
+
+#Create a svm Classifier
+clf = SVC()
+
+#Train the model using the training sets
+clf.fit(X_train, y_train)
+
+#Predict the response for test dataset
+y_pred = clf.predict(X_test)
+y_pred
+
+
+# Evaluating the model
+print("Accuracy: ",accuracy_score(y_test,y_pred))
+
+# creating a confusion matrix to evaluate the model
+cm = confusion_matrix(y_test, y_pred)
+cm
+
+# using a heatmap to show confusion matrix
+sns.heatmap(cm, annot=True)
+
+# printing a classification report for model evaluation
+print(classification_report(y_test, y_pred))
